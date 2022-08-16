@@ -19,6 +19,10 @@ Memo requires python3 & PyQt5 to run.
 pip install pyqt5
 ```
 
+```sh
+git clone https://github.com/tizzhh/memo
+```
+
 ## Usage:
 ```sh
 python memo.py

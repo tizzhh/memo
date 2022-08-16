@@ -40,4 +40,4 @@ python memo.py -f *yourcsvfile*
 - re
 - argparse
 - csv
-- os# memo
+- os

@@ -45,6 +45,7 @@ class UI(QMainWindow):
         self.line = self.findChild(QLineEdit, "lineEdit")
         self.memodelete = self.findChild(QPushButton, "pushButton_2")
         self.date.setMinimumDateTime(QDateTime.currentDateTime())
+        self.textedit2.setReadOnly(True)
 
         self.button.clicked.connect(self.click)
         self.memodelete.clicked.connect(self.memo_delete)
@@ -57,12 +58,10 @@ class UI(QMainWindow):
         self.test_signal.connect(self.label.setText)
         self.test_signal.connect(self.memoo)
 
-
         if not os.stat(self.filename).st_size == 0:
             self.memos = csv_read(self.filename)
-            self.prev_memos()
-            self.update_memos2(self.memos)
-
+        self.prev_memos()
+        self.update_memos2(self.memos)
 
     def update_memos2(self, memos):
         for item in memos:
@@ -74,7 +73,7 @@ class UI(QMainWindow):
             r"^([0][1-9]|[1-2][0-9]|[3][0-1])\.([0][1-9]|[1][0-2])\.[2][0-1][0-9][0-9] ([0][0-9]|[1][0-9]|[2][0-4]):([0][0-9]|[1-5][0-9])$",
             self.line.text(),
         ):
-            self.error3()
+            self.error("Date format: dd.MM.yyyy hh:mm")
             return
         for i in range(len(self.memos)):
             check = False
@@ -83,7 +82,7 @@ class UI(QMainWindow):
                 check = True
                 break
         if check == False:
-            self.error2()
+            self.error("A memo doesn't exist")
             return
         self.line.clear()
         self.prev_memos()
@@ -98,10 +97,10 @@ class UI(QMainWindow):
 
     def save_memo(self, memo, date):
         if self.textedit.toPlainText() == "":
-            self.error()
+            self.error("Please make a memo")
             return
-        if date in self.memos:
-            self.error1()
+        if date in self.memos2:
+            self.error("A memo for this date already exists")
             return
         self.memos.append({"date": date, "memo": memo})
         update_csv(self.memos, self.filename)
@@ -128,46 +127,29 @@ class UI(QMainWindow):
         msg.setWindowTitle("Memo")
         msg.exec_()
 
-    def error(self):
+    def error(self, text):
         error = QMessageBox()
         error.setIcon(QMessageBox.Critical)
-        error.setText("Please make a memo")
+        error.setText(text)
         error.setWindowTitle("Error")
         error.exec_()
-
-    def error1(self):
-        error = QMessageBox()
-        error.setIcon(QMessageBox.Critical)
-        error.setText("A memo for this date already exists")
-        error.setWindowTitle("Error")
-        error.exec_()
-
-    def error2(self):
-        error = QMessageBox()
-        error.setIcon(QMessageBox.Critical)
-        error.setText("A memo doesn't exist")
-        error.setWindowTitle("Error")
-        error.exec_()
-
-    def error3(self):
-        error = QMessageBox()
-        error.setIcon(QMessageBox.Critical)
-        error.setText("Wrong date format")
-        error.setInformativeText("Date format: dd.MM.yyyy hh:mm")
-        error.setWindowTitle("Error")
-        error.exec_()
-
 
 def main():
     app = QApplication(sys.argv)
     UIWindow = UI()
     app.exec_()
 
+
 def args():
     parser = argparse.ArgumentParser()
-    parser.add_argument("-f", help="The name of file with memos, if it doesn't exist this app will create it. The file must be a .csv type", default="memos.csv")
+    parser.add_argument(
+        "-f",
+        help="The name of file with memos, if it doesn't exist this app will create it. The file must be a .csv type",
+        default="memos.csv",
+    )
     args = parser.parse_args()
     return args.f
+
 
 def filecreate(filename):
     if not ".csv" in filename:
@@ -180,25 +162,28 @@ def filecreate(filename):
 
     return filename
 
+
 def update_csv(memos, filename):
     with open(filename, "w", newline="") as file:
         fieldnames = ["date", "memo"]
         writer = csv.DictWriter(file, fieldnames=fieldnames)
         writer.writeheader()
         for row in memos:
-            if QDateTime.currentDateTime().toString('dd.MM.yyyy hh:mm') <= row["date"]:
+            if QDateTime.currentDateTime().toString("dd.MM.yyyy hh:mm") <= row["date"]:
                 writer.writerow(row)
     return True
+
 
 def csv_read(filename):
     memos = []
     with open(filename, "r") as file:
         reader = csv.DictReader(file)
         for row in reader:
-            if QDateTime.currentDateTime().toString('dd.MM.yyyy hh:mm') <= row["date"]:   
+            if QDateTime.currentDateTime().toString("dd.MM.yyyy hh:mm") <= row["date"]:
                 memos.append(row)
 
     return memos
+
 
 if __name__ == "__main__":
     main()

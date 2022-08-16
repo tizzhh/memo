@@ -2,9 +2,6 @@
 #### Description:
 Memo is a small python & PyQt5 app that allows users to create, you guess, memos! ✨
 
-Errors are genereted with the help of QMessageBox.
-
-
 ## Features
 
 - Select specific date
